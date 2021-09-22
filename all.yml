@@ -1,0 +1,18 @@
+# run on branches or MRs. We prefer running on MRs, but if there is only a branch, we will run on that too. This may lead to duplicate pipelines, but that should happen rarely.
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+
+stages:
+  - test
+  - build
+  - deploy
+
+include:
+  - local: '/general/all.yml'
+  - local: '/dart/all.yml'
+    rules:
+      - exists: [ 'pubspec.yml' ]

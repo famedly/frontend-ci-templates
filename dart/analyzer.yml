@@ -1,0 +1,17 @@
+# to include this in various files, we might prepend multiple slashes, see:
+# https://gitlab.com/gitlab-org/gitlab/-/issues/28987
+include:
+  local: '/dart/common.yml'
+
+dart_analyzer:
+  image: registry.gitlab.com/famedly/company/frontend/flutter-dockerimages/flutter/stable:${FLUTTER_IMAGE_TAG}
+  tags: [docker]
+  stage: test
+  needs: []
+  before_script:
+    - !reference [.dart_prepare_ssh, before_script]
+  script:
+    - dart format lib/ --set-exit-if-changed
+    - dart pub get
+    - dart analyze
+

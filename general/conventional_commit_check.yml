@@ -1,0 +1,14 @@
+check_conventional_commits:
+  image: alpine:latest
+  tags: [docker]
+  stage: test
+  needs: []
+  before_script:
+    - apk add git grep
+  script:
+    - git fetch origin ${CI_DEFAULT_BRANCH}
+    # List all non merge commits specific to this branch and checks their summary line with grep
+    - "git log --pretty=format:%s --no-merges HEAD ^origin/main |  ( ! grep -v -E '^(ci|fix|feat|chore|test|refactor|style|builds|docs): ' )"
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+

@@ -1,0 +1,12 @@
+variables:
+  FLUTTER_IMAGE_TAG: latest
+
+.dart_prepare_ssh:
+  before_script: |-
+    if [ -n "$SSH_KEY" ]; then
+      eval `ssh-agent -s`
+      echo "$SSH_KEY" | ssh-add -
+      mkdir -p ~/.ssh
+      echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    fi
+

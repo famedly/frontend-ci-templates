@@ -1,0 +1,2 @@
+include:
+  local: 'conventional_commit_check.yml'
