@@ -1,2 +1,2 @@
 include:
-  - local: 'conventional_commit_check.yml'
+  - local: '/general/conventional_commit_check.yml'
