@@ -58,3 +58,9 @@ latest image by default.
 ### dart_analyzer
 
 Runs the dart analyzer, formatter and pub get.
+
+### dart_review_app
+
+Deploys a review app. This requires a build_web job in an earlier stage and the
+`FAMEDLY_REVIEW_APP` variable set.  Because of GitLab limitations, a default
+build_web job is added. Please redefine it as needed.

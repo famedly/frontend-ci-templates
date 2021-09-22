@@ -1,0 +1,51 @@
+# to include this in various files, we might prepend multiple slashes, see:
+# https://gitlab.com/gitlab-org/gitlab/-/issues/28987
+include:
+  - local: '//dart/common.yml'
+
+build_web:
+  extends: .dart_base
+  rules:
+    - if: '$FAMEDLY_REVIEW_APP && $CI_MERGE_REQUEST_IID'
+      exists:
+        - 'pubspec.yaml'
+
+dart_review_app:
+  extends: .dart_base
+  stage: deploy
+  image: alpine:latest
+  needs: [build_web]
+  variables:
+    APPS_DOMAIN: app-review.famedly.de
+  script:
+    - mv web public
+    - apk add rsync
+    - rsync -av --delete public/ app-review@thalamus.famedly.de:/opt/app-review/web/${CI_ENVIRONMENT_SLUG}
+  environment:
+    name: review/${CI_PROJECT_NAME}-${CI_MERGE_REQUEST_IID}
+    url: http://${CI_ENVIRONMENT_SLUG}.${APPS_DOMAIN}
+    on_stop: dart_stop_review
+    auto_stop_in: 1 week
+  rules:
+    - if: '$FAMEDLY_REVIEW_APP && $CI_MERGE_REQUEST_IID'
+      exists:
+        - 'pubspec.yaml'
+
+dart_stop_review:
+  extends: .dart_base
+  stage: deploy
+  image: alpine:latest
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - ssh app-review@thalamus.famedly.de rm -rf /opt/app-review/web/${CI_ENVIRONMENT_SLUG}
+  environment:
+    name: review/${CI_PROJECT_NAME}-${CI_MERGE_REQUEST_IID}
+    action: stop
+  rules:
+    - if: '$FAMEDLY_REVIEW_APP && $CI_MERGE_REQUEST_IID'
+      exists:
+        - 'pubspec.yaml'
+      when: manual
+      allow_failure: true
+

@@ -1,3 +1,4 @@
 include:
   - local: '/dart/analyzer.yml'
+  - local: '/dart/review-app.yml'
 
