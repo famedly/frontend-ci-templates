@@ -5,6 +5,7 @@ include:
 
 build_web:
   extends: .dart_base
+  script: [ "echo test" ]
   rules:
     - if: '$FAMEDLY_REVIEW_APP && $CI_MERGE_REQUEST_IID'
       exists:
