@@ -18,9 +18,9 @@ variables:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       exists:
-        - '/pubspec.yml'
+        - 'pubspec.yaml'
     - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
       when: never
     - if: '$CI_COMMIT_BRANCH'
       exists:
-        - '/pubspec.yml'
+        - 'pubspec.yaml'
