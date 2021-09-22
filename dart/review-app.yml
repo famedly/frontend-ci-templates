@@ -14,7 +14,6 @@ build_web:
 dart_review_app:
   extends: .dart_base
   stage: deploy
-  image: alpine:latest
   needs: [build_web]
   variables:
     APPS_DOMAIN: app-review.famedly.de
@@ -35,7 +34,6 @@ dart_review_app:
 dart_stop_review:
   extends: .dart_base
   stage: deploy
-  image: alpine:latest
   variables:
     GIT_STRATEGY: none
   script:
