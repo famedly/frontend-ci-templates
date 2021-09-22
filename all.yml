@@ -13,8 +13,6 @@ stages:
 
 include:
   - project: 'famedly/company/frontend/ci-templates'
-    file: '/general/all.yml'
-  - project: 'famedly/company/frontend/ci-templates'
-    file: '/dart/all.yml'
-    rules:
-      - exists: [ 'pubspec.yml' ]
+    file:
+      - '/general/all.yml'
+      - '/dart/all.yml'

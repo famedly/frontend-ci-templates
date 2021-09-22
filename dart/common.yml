@@ -10,3 +10,18 @@ variables:
       echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
     fi
 
+.dart_base:
+  image: registry.gitlab.com/famedly/company/frontend/flutter-dockerimages/flutter/stable:${FLUTTER_IMAGE_TAG}
+  tags: [docker]
+  before_script:
+    - !reference [.dart_prepare_ssh, before_script]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      exists:
+        - '/pubspec.yml'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+      exists:
+        - '/pubspec.yml'
+    - when: never

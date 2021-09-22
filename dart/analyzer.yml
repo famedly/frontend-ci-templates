@@ -5,12 +5,9 @@ include:
     file: '/dart/common.yml'
 
 dart_analyzer:
-  image: registry.gitlab.com/famedly/company/frontend/flutter-dockerimages/flutter/stable:${FLUTTER_IMAGE_TAG}
-  tags: [docker]
+  extends: .dart_base
   stage: test
   needs: []
-  before_script:
-    - !reference [.dart_prepare_ssh, before_script]
   script:
     - dart format lib/ --set-exit-if-changed
     - dart pub get
