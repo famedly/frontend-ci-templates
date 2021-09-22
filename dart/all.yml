@@ -1,3 +1,4 @@
 include:
-  - local: 'analyzer.yml'
+  - project: 'famedly/company/frontend/ci-templates'
+    file: '/dart/analyzer.yml'
 
