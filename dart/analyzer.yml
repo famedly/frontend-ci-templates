@@ -8,8 +8,9 @@ dart_analyzer:
   stage: test
   needs: []
   script:
-    - dart format lib/ test/ test_driver/ --set-exit-if-changed
-    - dart pub get
-    - dart analyze
+    - (grep -q -e  '^flutter:$'  pubspec.yaml) && export command=flutter || export command=dart
+    - $command format lib/ test/ test_driver/ --set-exit-if-changed
+    - $command pub get
+    - $command analyze
     - dart pub run import_sorter:main --no-comments --exit-if-changed
 
