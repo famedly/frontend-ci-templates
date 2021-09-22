@@ -11,4 +11,5 @@ dart_analyzer:
     - dart format lib/ test/ test_driver/ --set-exit-if-changed
     - dart pub get
     - dart analyze
+    - dart pub run import_sorter:main --no-comments --exit-if-changed
 
