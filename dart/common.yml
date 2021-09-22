@@ -24,4 +24,3 @@ variables:
     - if: '$CI_COMMIT_BRANCH'
       exists:
         - '/pubspec.yml'
-    - when: never
