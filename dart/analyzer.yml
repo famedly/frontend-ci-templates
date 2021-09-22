@@ -1,8 +1,7 @@
 # to include this in various files, we might prepend multiple slashes, see:
 # https://gitlab.com/gitlab-org/gitlab/-/issues/28987
 include:
-  - project: 'famedly/company/frontend/ci-templates'
-    file: '/dart/common.yml'
+  - local: '/dart/common.yml'
 
 dart_analyzer:
   extends: .dart_base

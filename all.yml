@@ -12,7 +12,6 @@ stages:
   - deploy
 
 include:
-  - project: 'famedly/company/frontend/ci-templates'
-    file:
-      - '/general/all.yml'
-      - '/dart/all.yml'
+  - local: '/general/all.yml'
+  - local: '/dart/all.yml'
+

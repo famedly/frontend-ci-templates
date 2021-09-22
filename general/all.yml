@@ -1,3 +1,2 @@
 include:
-  - project: 'famedly/company/frontend/ci-templates'
-    file: '/general/conventional_commit_check.yml'
+  - local: 'conventional_commit_check.yml'
