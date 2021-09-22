@@ -1,7 +1,7 @@
 # to include this in various files, we might prepend multiple slashes, see:
 # https://gitlab.com/gitlab-org/gitlab/-/issues/28987
 include:
-  local: '/dart/common.yml'
+  - local: '/dart/common.yml'
 
 dart_analyzer:
   image: registry.gitlab.com/famedly/company/frontend/flutter-dockerimages/flutter/stable:${FLUTTER_IMAGE_TAG}
