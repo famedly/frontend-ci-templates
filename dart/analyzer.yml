@@ -13,4 +13,9 @@ dart_analyzer:
     - $command pub get
     - $command analyze
     - dart pub run import_sorter:main --no-comments --exit-if-changed
+    # calculate code metrics, don't fail if the command does not exist (for now)
+    - $command pub run dart_code_metrics:metrics lib -r gitlab > code-quality-report.json || true
+  artifacts:
+    reports:
+      codequality: code-quality-report.json
 
