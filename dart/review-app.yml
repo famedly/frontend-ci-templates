@@ -4,12 +4,12 @@ include:
   - local: '//dart/common.yml'
 
 variables:
-  REVIEW_DOMAIN: web-review.famedly.de
-  REVIEW_HOSTNAME: ${REVIEW_DOMAIN}
-  REVIEW_USERNAME: web-review
-  REVIEW_FILE_PATH: /opt/web-review/web/${CI_ENVIRONMENT_SLUG}
-  REVIEW_ENVIRONMENT_NAME: review/${CI_PROJECT_NAME}-${CI_MERGE_REQUEST_IID}
-  REVIEW_URL: https://${CI_ENVIRONMENT_SLUG}.${REVIEW_DOMAIN}
+  REVIEW_APP_BASEDOMAIN: web-review.famedly.de
+  REVIEW_APP_RSYNC_HOST: ${REVIEW_APP_BASEDOMAIN}
+  REVIEW_APP_RSYNC_USER: web-review
+  REVIEW_APP_FILE_PATH: /opt/web-review/web/${CI_ENVIRONMENT_SLUG}
+  REVIEW_APP_ENVIRONMENT_NAME: review/${CI_PROJECT_NAME}-${CI_MERGE_REQUEST_IID}
+  REVIEW_APP_URL: https://${CI_ENVIRONMENT_SLUG}.${REVIEW_APP_BASEDOMAIN}
 
 build_web:
   extends: .dart_base
@@ -26,10 +26,11 @@ dart_review_app:
   script:
     - mv web public
     - apk add rsync
-    - rsync -av --delete public/ ${REVIEW_USERNAME}@${REVIEW_HOSTNAME}:${REVIEW_FILE_PATH}
+    - rsync -av --delete public/ ${REVIEW_APP_RSYNC_USER}@${REVIEW_APP_RSYNC_HOST}:${REVIEW_APP_FILE_PATH}
   environment:
-    name: $REVIEW_ENVIRONMENT_NAME
-    url: $REVIEW_URL
+    name: $REVIEW_APP_ENVIRONMENT_NAME
+    deployment_tier: development
+    url: $REVIEW_APP_URL
     on_stop: dart_stop_review
     auto_stop_in: 1 week
   rules:
@@ -43,9 +44,9 @@ dart_stop_review:
   variables:
     GIT_STRATEGY: none
   script:
-    - ssh ${REVIEW_USERNAME}@${REVIEW_HOSTNAME} rm -rf ${REVIEW_FILE_PATH}
+    - ssh ${REVIEW_APP_RSYNC_USER}@${REVIEW_APP_RSYNC_HOST} rm -rf ${REVIEW_APP_FILE_PATH}
   environment:
-    name: $REVIEW_ENVIRONMENT_NAME
+    name: $REVIEW_APP_ENVIRONMENT_NAME
     action: stop
   rules:
     - if: '$FAMEDLY_REVIEW_APP && $CI_MERGE_REQUEST_IID'
@@ -54,3 +55,50 @@ dart_stop_review:
       when: manual
       allow_failure: true
 
+qa_app:
+  extends: .dart_base
+  stage: deploy
+  needs: [ build_web ]
+  variables:
+    QA_APP_BASEDOMAIN: ${REVIEW_APP_BASEDOMAIN}
+    QA_APP_RSYNC_HOST: ${QA_APP_BASEDOMAIN}
+    QA_APP_RSYNC_USER: ${REVIEW_APP_RSYNC_USER}
+    QA_APP_ENVIRONMENT_NAME: qa-${CI_PROJECT_NAME}
+    QA_APP_FILE_PATH: /opt/web-review/web/${CI_ENVIRONMENT_SLUG}
+    QA_APP_URL: https://${CI_ENVIRONMENT_SLUG}.${QA_APP_BASEDOMAIN}
+  script:
+    - mv web public
+    - apk add rsync
+    - rsync -av --delete public/ "${QA_APP_RSYNC_USER}@${QA_APP_RSYNC_HOST}:${QA_APP_FILE_PATH}"
+  environment:
+    name: $QA_APP_ENVIRONMENT_NAME
+    deployment_tier: testing
+    url: $QA_APP_URL
+  rules:
+    - if: '$FAMEDLY_REVIEW_APP && $CI_COMMIT_TAG =~ /^qa/'
+      exists:
+        - 'pubspec.yaml'
+
+staging_app:
+  extends: .dart_base
+  stage: deploy
+  needs: [ build_web ]
+  variables:
+    STAGING_APP_BASEDOMAIN: ${REVIEW_APP_BASEDOMAIN}
+    STAGING_APP_RSYNC_HOST: ${STAGING_APP_BASEDOMAIN}
+    STAGING_APP_RSYNC_USER: ${REVIEW_APP_RSYNC_USER}
+    STAGING_APP_ENVIRONMENT_NAME: staging-${CI_PROJECT_NAME}
+    STAGING_APP_FILE_PATH: /opt/web-review/web/${CI_ENVIRONMENT_SLUG}
+    STAGING_APP_URL: https://${CI_ENVIRONMENT_SLUG}.${STAGING_APP_BASEDOMAIN}
+  script:
+    - mv web public
+    - apk add rsync
+    - rsync -av --delete public/ "${STAGING_APP_RSYNC_USER}@${STAGING_APP_RSYNC_HOST}:${STAGING_APP_FILE_PATH}"
+  environment:
+    name: $STAGING_APP_ENVIRONMENT_NAME
+    deployment_tier: staging
+    url: $STAGING_APP_URL
+  rules:
+    - if: '$FAMEDLY_REVIEW_APP && $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+      exists:
+        - 'pubspec.yaml'
