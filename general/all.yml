@@ -1,2 +1,4 @@
 include:
   - local: '/general/conventional_commit_check.yml'
+  - local: '/general/shellcheck.yml'
+
