@@ -15,7 +15,7 @@ variables:
     SETTINGS__LOG_COLOR: "true"
   script:
     - cd /home/dependabot/app
-    - git clone https://github.com/flutter/flutter.git
+    - git clone https://github.com/flutter/flutter.git -b stable
     - export PATH="`pwd`/flutter/bin:$PATH"
     - which flutter
     - ./flutter/bin/flutter --version
