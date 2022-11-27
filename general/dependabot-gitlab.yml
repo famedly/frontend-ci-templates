@@ -15,8 +15,11 @@ variables:
     SETTINGS__LOG_COLOR: "true"
   script:
     - cd /home/dependabot/app
+    - git clone https://github.com/flutter/flutter.git
+    - export PATH="$PATH:`pwd`/flutter/bin"
     - flutter --version
     - bundle exec rake "dependabot:update[$PROJECT_PATH,$PACKAGE_MANAGER,$DIRECTORY]"
+
 
 pub:
   extends: .dependabot-gitlab
