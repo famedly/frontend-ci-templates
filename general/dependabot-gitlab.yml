@@ -14,6 +14,7 @@ variables:
     SETTINGS__STANDALONE: "true"
     SETTINGS__LOG_COLOR: "true"
   script:
+    - apt-get update && apt-get -y upgrade
     - cd /home/dependabot/app
     - git clone https://github.com/flutter/flutter.git -b stable
     - export PATH="`pwd`/flutter/bin:$PATH"
