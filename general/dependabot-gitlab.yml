@@ -17,6 +17,7 @@ variables:
     - cd /home/dependabot/app
     - git clone https://github.com/flutter/flutter.git
     - export PATH="`pwd`/flutter/bin:$PATH"
+    - which flutter
     - ./flutter/bin/flutter --version
     - bundle exec rake "dependabot:update[$PROJECT_PATH,$PACKAGE_MANAGER,$DIRECTORY]"
 
