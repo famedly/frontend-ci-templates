@@ -3,6 +3,9 @@ workflow:
   rules:
     - if: '$CI_COMMIT_TAG'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    # You might think this is redundant, but without this, when doing a merge from main to the main of a forged project, no jobs start!
+    # So add a special rule. :3
+    - if: '$COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
     - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
       when: never
     - if: '$CI_COMMIT_BRANCH'
