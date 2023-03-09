@@ -12,11 +12,17 @@ variables:
 
 .dart_base:
   image: registry.gitlab.com/famedly/company/frontend/flutter-dockerimages/flutter/stable:${FLUTTER_IMAGE_TAG}
-  tags: [docker]
   before_script:
     - !reference [.dart_prepare_ssh, before_script]
   rules:
+    # copied from workflow because of https://gitlab.com/gitlab-org/gitlab/-/issues/386040
+    - if: '$CI_COMMIT_TAG'
+      exists:
+        - 'pubspec.yaml'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      exists:
+        - 'pubspec.yaml'
+    - if: '$COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       exists:
         - 'pubspec.yaml'
     - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
