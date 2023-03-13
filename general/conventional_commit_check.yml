@@ -1,5 +1,5 @@
 check_conventional_commits:
-  image: alpine:latest
+  image: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}/alpine:latest
   tags: [docker]
   stage: test
   needs: []
