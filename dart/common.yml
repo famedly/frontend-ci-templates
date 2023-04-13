@@ -1,13 +1,19 @@
 variables:
   FLUTTER_IMAGE_TAG: latest
 
+# This reads the ssh key from the SSH_KEY variable (if present) and adds it to the key agent.
+# Currently we disable QoS, because that makes some CI jobs fail. It is not quite clear why this breaks stuff, but the
+# impact of disabling QoS should be minimal. Errors from this show up in the logs like this:
+# client_loop: send disconnect: Broken pipe
+# You can copy this setup to your job by adding this to your before_script:
+# - !reference [.dart_prepare_ssh, before_script]
 .dart_prepare_ssh:
   before_script: |-
     if [ -n "$SSH_KEY" ]; then
       eval `ssh-agent -s`
       echo "$SSH_KEY" | ssh-add -
       mkdir -p ~/.ssh
-      echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+      echo -e "Host *\n\tStrictHostKeyChecking no\n\tIPQoS=0x00\n\n" > ~/.ssh/config
     fi
 
 .dart_base:
