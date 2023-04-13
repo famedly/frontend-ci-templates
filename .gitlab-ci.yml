@@ -1,2 +1,19 @@
 include:
   - local: '/all.yml'
+
+# the jobs below test if the changes break any other projects. For that we trigger pipelines in a few projects and
+# overwrite the template with the one from our specific commit.
+
+variables:
+  OVERRIDE_INCLUDE_BRANCH: $CI_COMMIT_SHA
+
+compatible:
+  parallel:
+    matrix:
+      - PROJECT:
+        - famedly/company/frontend/famedlysdk
+        - famedly/company/frontend/app
+        - famedly/company/frontend/famedly-web
+  trigger:
+    project: $PROJECT
+    strategy: depend
