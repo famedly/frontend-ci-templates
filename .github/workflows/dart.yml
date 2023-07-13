@@ -33,7 +33,7 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
       - name: Enable pulling private dependencies
-        uses: famedly/frontend-ci-templates/.github/actions/dart-prepare
+        uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@main
         with:
           ssh_key: "${{ secrets.ssh_key }}"
       - name: Fetch dependencies
