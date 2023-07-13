@@ -1,0 +1,67 @@
+name: "Deploys a review app for a specific PR"
+
+on:
+  workflow_call:
+    inputs:
+      pr:
+        description: "The PR to deploy the review app for"
+        type: string
+      projectname:
+        description: "The name of the project used in the review app url"
+        type: string
+        required: true
+
+jobs:
+  # We can't easily use one environment for all review apps and we can't create them without a PAT, which is currently disabled. Maybe someone can figure out how to use transient_environment or deploymnets otherwise...
+  #create_environment:
+  #  if: ${{ inputs.pr }}
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Creating review environment
+  #      uses: actions/github-script@v6
+  #      env:
+  #        ENV_NAME: "review-${{ inputs.pr }}"
+  #      with:
+  #        github-token: ${{ secrets.MANAGE_ENVS_TOKEN }}
+  #        script: |
+  #          const { ENV_NAME } = process.env
+  #          try {
+  #            const environment = await github.rest.repos.getEnvironment({
+  #              owner: context.repo.owner,
+  #              repo: context.repo.repo,
+  #              environment_name: ENV_NAME,
+  #            });
+  #          } catch (error) {
+  #            // does not exist, creating
+  #            const environment = await github.rest.repos.createOrUpdateEnvironment({
+  #              owner: context.repo.owner,
+  #              repo: context.repo.repo,
+  #              environment_name: ENV_NAME,
+  #              deployment_branch_policy: null
+  #            });
+  #          }
+  deploy_review_app:
+    #needs: create_environment
+    if: ${{ inputs.pr }}
+    runs-on: ubuntu-latest
+    #environment:
+    #  name: "review-${{ inputs.pr }}"
+    #  url: "https://${{inputs.projectname}}-pr-${{ inputs.pr }}.web-review.famedly.de"
+    env:
+      SLUG: "${{inputs.projectname}}-pr-${{ inputs.pr }}"
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: web
+          path: public
+      - name: Copying app
+        shell: bash
+        run: |
+          eval `ssh-agent -s`
+          echo '${{ secrets.REVIEW_APP_SSH_KEY }}' | ssh-add -
+          mkdir -p ~/.ssh
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+          ls -la
+          #mv web public
+          rsync -av --delete public/ "web-review@web-review.famedly.de:/opt/web-review/web/${{inputs.projectname}}-pr-${{ inputs.pr }}"
+          echo "Review app can be found here: [App](https://${{inputs.projectname}}-pr-${{ inputs.pr }}.web-review.famedly.de)" >> $GITHUB_STEP_SUMMARY

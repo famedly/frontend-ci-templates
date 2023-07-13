@@ -1,0 +1,16 @@
+name: "General checks like for commit messages. etc"
+
+on:
+  workflow_call:
+
+jobs:
+  conventional_commits:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/head/main' && github.event.pull_request
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Check conventional commits
+        run: |
+          (git log --pretty=format:%s --no-merges HEAD ^${{github.event.pull_request.base.sha}} |  ( ! grep -v -E '^(ci|fix|feat|chore|test|perf|refactor|style|builds|docs): ' ) > tempout ) || ( echo -e '# Not conventional commits:' >> $GITHUB_STEP_SUMMARY; cat tempout >> $GITHUB_STEP_SUMMARY; exit 1 )

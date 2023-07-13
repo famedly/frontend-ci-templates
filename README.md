@@ -1,31 +1,81 @@
 # About
 
-This repo includes common CI configurations inside the Frontend group. It is
-intended to be included into a project to reduce duplication.
-
-This repo sets the workflow to run jobs as merge request pipelines by default,
-but also tries to run jobs on branches, if no MR exists.
+This repo includes common CI workflows for the Instant-Messaging team. It might
+still include some of the old gitlab templates, but those aren't used anymore.
 
 # How to use
 
+Include the workflows you want to use in your projects main workflow, for
+example:
+
 ```yaml
-include:
-  project: "famedly/company/frontend/ci-templates"
-  file: "all.yml"
+name: "All the app specific jobs"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_web:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/famedly/container-image-flutter/flutter:latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      # You may need to pull this repo instead using a checkout action
+      - name: Enable pulling private dependencies
+        uses: famedly/frontend-ci-templates/.github/actions/dart-prepare
+        with:
+          ssh_key: "${{ secrets.CI_SSH_PRIVATE_KEY }}"
+      - name: Do dart stuff
+        run: |
+          ./scripts/prepare-web.sh
+          apk add yq
+  review_app:
+    needs: build_web
+    secrets: inherit
+    uses: famedly/frontend-ci-templates/.github/workflows/review-app.yml
+    with:
+      projectname: "app"
+      pr: ${{ github.events.pull_request.number }}
+
+  dart:
+    permissions:
+      contents: read
+    uses: famedly/frontend-ci-templates/.github/workflows/dart.yml
+    with:
+      flutter_version: 3.10.4
+      dart_version: 3.0.0
+    secrets:
+      ssh_key: "${{ secrets.CI_SSH_PRIVATE_KEY }}"
+
+  general:
+    permissions:
+      contents: read
+    uses: famedly/frontend-ci-templates/.github/workflows/general.yml
 ```
 
 You can also include specific subsets of files to reduce the amount of reused
 jobs.
 
-# Job Descriptions
+# Workflow Descriptions
 
-This section describes the different jobs in the template.
+This section describes the different workflows and jobs in the template.
 
 ## general/
 
 These jobs should be useful for all Frontend projects.
 
-### conventional_commit_check
+### conventional_commits
 
 This job checks new commits on a merge request, if they follow the conventional
 commit specification.
@@ -44,25 +94,16 @@ This means commit with the following prefixes in the summary line are allowed:
 
 ## dart/
 
-These are dart project specific checks. They are automatically enabled, if a
-pubspec.yml is found in the root of the project.
+These are dart project specific checks.
 
-Make sure you define the FLUTTER_IMAGE_TAG variable, so that it doesn't use the
-latest image by default.
+Make sure you define the flutter_version and dart_version variables, so that it
+knows what container to use.
 
 ### dart_analyzer
 
 Runs the dart analyzer, formatter and pub get.
 
-### dart_review_app
+## review_app
 
-Deploys a review app. This requires a build_web job in an earlier stage and the
-`FAMEDLY_REVIEW_APP` variable set. Because of GitLab limitations, a default
-build_web job is added. Please redefine it as needed.
-
-This also adds support for a review and QA environment:
-
-- The QA environment is created on tags starting with `qa`. There is only one of
-  those always accessible under the same url.
-- The staging environment is automatically deployed to when a version is tagged
-  and also always available under the same url (but distinct from the qa env).
+Allows deploying a review app to our testservers. This is currently just done on
+PRs and they are not cleaned up.
