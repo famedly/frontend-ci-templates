@@ -15,9 +15,9 @@ runs:
         mkdir -p -m 0700 ~/.ssh/ && touch ~/.ssh/known_hosts
         curl --silent https://api.github.com/meta  | jq --raw-output '"github.com "+.ssh_keys[]' > ~/.ssh/known_hosts
         chmod 600 ~/.ssh/known_hosts
-        sudo mkdir -p -m 0700 /root/.ssh/ && sudo touch /root/.ssh/known_hosts
-        curl --silent https://api.github.com/meta  | sudo jq --raw-output '"github.com "+.ssh_keys[]' > /root/.ssh/known_hosts
-        sudo chmod 600 /root/.ssh/known_hosts
+        # sudo mkdir -p -m 0700 /root/.ssh/ && sudo touch /root/.ssh/known_hosts
+        # curl --silent https://api.github.com/meta  | sudo jq --raw-output '"github.com "+.ssh_keys[]' > /root/.ssh/known_hosts
+        # sudo chmod 600 /root/.ssh/known_hosts
         eval `ssh-agent -s`
         echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
         (ssh-add  -vvv - <<< "${{ inputs.ssh_key }}") || true
