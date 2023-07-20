@@ -1,5 +1,5 @@
-name: "Prepare dart"
-description: "Sets up the flutter container for pulling from private repos"
+name: "Setup ssh"
+description: "Sets up the ssh_key and known_hosts"
 
 inputs:
   ssh_key:
@@ -24,5 +24,5 @@ runs:
         # Fixup the permissions after the checkout action
         # see https://github.com/actions/checkout/issues/766 and https://github.com/actions/checkout/issues/363
         sudo chown -R $(whoami) .
-        flutter --disable-telemetry
+        # flutter --disable-telemetry
       shell: bash
