@@ -23,6 +23,6 @@ runs:
         (ssh-add  -vvv - <<< "${{ inputs.ssh_key }}") || true
         # Fixup the permissions after the checkout action
         # see https://github.com/actions/checkout/issues/766 and https://github.com/actions/checkout/issues/363
-        sudo chown -R $(whoami) .
+        chown -R $(whoami) .
         # flutter --disable-telemetry
       shell: bash
