@@ -1,0 +1,47 @@
+name: Publish to GitHub Pages
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        description: "Name of the uploaded artifacts directory"
+        type: string
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Clean repository
+        run: rm -rf ./*
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{inputs.artifact_name}}
+      - name: Publish to GitHub Pages
+        working-directory: .
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git checkout --orphan gh-pages
+          git add .
+          git commit -m "Publish to GitHub Pages"
+          git push --force origin gh-pages
+      - name: Delete Artifact
+        uses: actions/github-script@v5
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const artifact = artifacts.data.artifacts.find((artifact) => artifact.name === "${{inputs.artifact_name}}");
+            await github.rest.actions.deleteArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: ${{artifact.id}},
+            });
