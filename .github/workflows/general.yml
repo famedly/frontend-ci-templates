@@ -6,22 +6,19 @@ on:
 jobs:
   conventional_commits:
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/head/main' && github.event.pull_request
+    if: github.ref != 'refs/heads/main' && github.event.pull_request
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-      - name: Install dependencies
-        run: npm install --global commitlint @commitlint/config-conventional
-      - name: Lint Commit Messages
+      - name: Check conventional commits
         run: |
-          echo "Linting commit messages..."
-          COMMIT_MSGS=$(git log --no-merges --format=%s $(git rev-parse origin/main^)..$(git rev-parse HEAD^))
+          echo "Checking commit messages..."
+          COMMIT_MSGS=$(git log --no-merges --format=%s origin/main..HEAD)
           for msg in "${COMMIT_MSGS[@]}"; do
-            echo "Linting: $msg"
-            echo $msg | commitlint
+            echo "Checking: $msg"
+            if [[ ! $msg =~ ^(ci|feat|fix|docs|style|refactor|perf|test|chore|build)(\(.+\))?:\ .+ ]]; then
+              echo "error: invalid commit message: $msg"
+              exit 1
+            fi
           done
