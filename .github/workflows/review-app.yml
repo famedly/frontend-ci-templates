@@ -10,6 +10,10 @@ on:
         description: "The name of the project used in the review app url"
         type: string
         required: true
+      environment:
+        type: string
+        description: "environment"
+        required: false    
 
 jobs:
   # We can't easily use one environment for all review apps and we can't create them without a PAT, which is currently disabled. Maybe someone can figure out how to use transient_environment or deploymnets otherwise...
@@ -44,11 +48,11 @@ jobs:
     #needs: create_environment
     if: ${{ inputs.pr }}
     runs-on: ubuntu-latest
-    #environment:
-    #  name: "review-${{ inputs.pr }}"
-    #  url: "https://${{inputs.projectname}}-pr-${{ inputs.pr }}.web-review.famedly.de"
+    environment:
+     name: ${{ inputs.environment }}
+     url: "https://${{ inputs.projectname }}-pr-${{ inputs.pr }}.web-review.famedly.de"
     env:
-      SLUG: "${{inputs.projectname}}-pr-${{ inputs.pr }}"
+      SLUG: "${{ inputs.projectname }}-pr-${{ inputs.pr }}"
     steps:
       - uses: actions/download-artifact@v3
         with:
