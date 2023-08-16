@@ -68,6 +68,7 @@ jobs:
 
 
   qa_app:
+      if: contains(github.ref_name, 'rc')
       #needs: create_environment
       runs-on: ubuntu-latest
       environment:
