@@ -51,8 +51,6 @@ jobs:
     environment:
      name: ${{ inputs.environment }}
      url: "https://${{ inputs.projectname }}-pr-${{ inputs.pr }}.web-review.famedly.de"
-    env:
-      SLUG: "${{ inputs.projectname }}-pr-${{ inputs.pr }}"
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -65,7 +63,27 @@ jobs:
           echo '${{ secrets.REVIEW_APP_SSH_KEY }}' | ssh-add -
           mkdir -p ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-          ls -la
-          #mv web public
           rsync -av --delete public/ "web-review@web-review.famedly.de:/opt/web-review/web/${{inputs.projectname}}-pr-${{ inputs.pr }}"
           echo "Review app can be found here: [App](https://${{inputs.projectname}}-pr-${{ inputs.pr }}.web-review.famedly.de)" >> $GITHUB_STEP_SUMMARY
+
+
+  qa_app:
+      #needs: create_environment
+      runs-on: ubuntu-latest
+      environment:
+        name: ${{ inputs.environment }}
+        url: "https://qa-${{ inputs.projectname }}.web-review.famedly.de"
+      steps:
+        - uses: actions/download-artifact@v3
+          with:
+            name: web
+            path: public
+        - name: Copying app
+          shell: bash
+          run: |
+            eval `ssh-agent -s`
+            echo '${{ secrets.REVIEW_APP_SSH_KEY }}' | ssh-add -
+            mkdir -p ~/.ssh
+            echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+            rsync -av --delete public/ "web-review@web-review.famedly.de:/opt/web-review/web/qa-${{inputs.projectname}}"
+            echo "QA app can be found here: [App](https://qa-${{inputs.projectname}}.web-review.famedly.de)" >> $GITHUB_STEP_SUMMARY
