@@ -13,7 +13,17 @@ on:
       environment:
         type: string
         description: "environment"
-        required: false    
+        required: false
+      artifact_name:
+        description: "Name of the artifact to be downloaded before"
+        required: false
+        type: string
+        default: web
+      artifact_path:
+        description: "Directory where the artifact should be unpacked"
+        required: false
+        default: public
+        type: string
 
 jobs:
   # We can't easily use one environment for all review apps and we can't create them without a PAT, which is currently disabled. Maybe someone can figure out how to use transient_environment or deploymnets otherwise...
@@ -49,13 +59,13 @@ jobs:
     if: ${{ inputs.pr }}
     runs-on: ubuntu-latest
     environment:
-     name: ${{ inputs.environment }}
-     url: "https://${{ inputs.projectname }}-pr-${{ inputs.pr }}.web-review.famedly.de"
+      name: ${{ inputs.environment }}
+      url: "https://${{ inputs.projectname }}-pr-${{ inputs.pr }}.web-review.famedly.de"
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: web
-          path: public
+          name: ${{inputs.artifact_name}}
+          path: ${{inputs.artifact_path}}
       - name: Copying app
         shell: bash
         run: |
@@ -63,28 +73,27 @@ jobs:
           echo '${{ secrets.REVIEW_APP_SSH_KEY }}' | ssh-add -
           mkdir -p ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-          rsync -av --delete public/ "web-review@web-review.famedly.de:/opt/web-review/web/${{inputs.projectname}}-pr-${{ inputs.pr }}"
+          rsync -av --delete ${{inputs.artifact_path}}/ "web-review@web-review.famedly.de:/opt/web-review/web/${{inputs.projectname}}-pr-${{ inputs.pr }}"
           echo "Review app can be found here: [App](https://${{inputs.projectname}}-pr-${{ inputs.pr }}.web-review.famedly.de)" >> $GITHUB_STEP_SUMMARY
 
-
   qa_app:
-      if: contains(github.ref_name, 'rc')
-      #needs: create_environment
-      runs-on: ubuntu-latest
-      environment:
-        name: ${{ inputs.environment }}
-        url: "https://qa-${{ inputs.projectname }}.web-review.famedly.de"
-      steps:
-        - uses: actions/download-artifact@v3
-          with:
-            name: web
-            path: public
-        - name: Copying app
-          shell: bash
-          run: |
-            eval `ssh-agent -s`
-            echo '${{ secrets.REVIEW_APP_SSH_KEY }}' | ssh-add -
-            mkdir -p ~/.ssh
-            echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-            rsync -av --delete public/ "web-review@web-review.famedly.de:/opt/web-review/web/qa-${{inputs.projectname}}"
-            echo "QA app can be found here: [App](https://qa-${{inputs.projectname}}.web-review.famedly.de)" >> $GITHUB_STEP_SUMMARY
+    if: contains(github.ref_name, 'rc')
+    #needs: create_environment
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+      url: "https://qa-${{ inputs.projectname }}.web-review.famedly.de"
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{inputs.artifact_name}}
+          path: ${{inputs.artifact_path}}
+      - name: Copying app
+        shell: bash
+        run: |
+          eval `ssh-agent -s`
+          echo '${{ secrets.REVIEW_APP_SSH_KEY }}' | ssh-add -
+          mkdir -p ~/.ssh
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+          rsync -av --delete ${{inputs.artifact_path}}/ "web-review@web-review.famedly.de:/opt/web-review/web/qa-${{inputs.projectname}}"
+          echo "QA app can be found here: [App](https://qa-${{inputs.projectname}}.web-review.famedly.de)" >> $GITHUB_STEP_SUMMARY
