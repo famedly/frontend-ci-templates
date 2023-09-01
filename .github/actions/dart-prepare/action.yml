@@ -3,7 +3,11 @@ description: "Sets up the flutter container for pulling from private repos"
 
 inputs:
   ssh_key:
-    description: "SSH key to pull private dependencies"
+    description: "SSH key to pull private dependencies."
+    required: false
+  container_mode:
+    description: "Wether this job runs inside of a container or directly on the VM."
+    default: "true"
     required: false
 
 runs:
@@ -12,15 +16,23 @@ runs:
     - name: Enable pulling private dependencies
       if: ${{inputs.ssh_key}}
       run: |
-        mkdir -p -m 0700 ~/.ssh/ && touch ~/.ssh/known_hosts
-        curl --silent https://api.github.com/meta  | jq --raw-output '"github.com "+.ssh_keys[]' > ~/.ssh/known_hosts
-        chmod 600 ~/.ssh/known_hosts
-        mkdir -p -m 0700 /root/.ssh/ && touch /root/.ssh/known_hosts
-        curl --silent https://api.github.com/meta  | jq --raw-output '"github.com "+.ssh_keys[]' > /root/.ssh/known_hosts
-        chmod 600 /root/.ssh/known_hosts
-        eval `ssh-agent -s`
-        echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
-        (ssh-add  -vvv - <<< "${{ inputs.ssh_key }}") || true
+        if [[ "${{ inputs.container_mode }}" == "true" ]]; then
+          mkdir -p -m 0700 ~/.ssh/ && touch ~/.ssh/known_hosts
+          curl --silent https://api.github.com/meta  | jq --raw-output '"github.com "+.ssh_keys[]' > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          mkdir -p -m 0700 /root/.ssh/ && touch /root/.ssh/known_hosts
+          curl --silent https://api.github.com/meta  | jq --raw-output '"github.com "+.ssh_keys[]' > /root/.ssh/known_hosts
+          chmod 600 /root/.ssh/known_hosts
+          eval `ssh-agent -s`
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
+          (ssh-add  -vvv - <<< "${{ inputs.ssh_key }}") || true
+        else
+          mkdir -p ~/.ssh
+          echo "${{inputs.ssh_key}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          eval $(ssh-agent)
+          ssh-add ~/.ssh/id_rsa
+        fi
         # Fixup the permissions after the checkout action
         # see https://github.com/actions/checkout/issues/766 and https://github.com/actions/checkout/issues/363
         chown -R $(whoami) .

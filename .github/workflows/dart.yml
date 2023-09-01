@@ -4,13 +4,17 @@ on:
   workflow_call:
     inputs:
       dart_version:
-        description: "The dart version used for tests"
+        description: "The dart version used for tests."
         type: string
-        required: true
+        required: false
       flutter_version:
-        description: "The flutter version used for tests and builds"
+        description: "The flutter version used for tests and builds. Be aware that this also installs dart in the version of the corresponding flutter SDK."
         type: string
-        required: true
+        required: false
+      env_file:
+        description: "Path to an .env file to read flutter_version and/or dart_version from. Please note that these variables will overwrite dart_version and flutter_version."
+        type: string
+        required: false
       directory:
         description: "The subdirectory for the dart project, defaults to the current directory."
         type: string
@@ -24,10 +28,22 @@ on:
 jobs:
   dart_analyzer:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/famedly/container-image-flutter/flutter:${{inputs.flutter_version}}
+    env:
+      env_file: ${{ inputs.env_file }}
+      flutter_version: ${{ inputs.flutter_version }}
+      dart_version: ${{ inputs.dart_version }}
     steps:
       - uses: actions/checkout@v3
+      - name: Read env file
+        if: env.env_file != ''
+        run: cat env.env_file >> $GITHUB_ENV
+      - uses: dart-lang/setup-dart@a57a6c04cf7d4840e88432aad6281d1e125f0d46
+        if: env.dart_version != ''
+        with:
+          sdk: ${{ env.dart_version }}
+      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa
+        with:
+          flutter-version: ${{ env.flutter_version }}
       - uses: actions/cache@v3
         with:
           path: ~/.pub-cache
@@ -36,6 +52,7 @@ jobs:
         uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@main
         with:
           ssh_key: "${{ secrets.ssh_key }}"
+          container_mode: "false"
       - name: Fetch dependencies
         working-directory: ${{ inputs.directory }}
         run: |
