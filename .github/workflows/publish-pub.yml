@@ -1,0 +1,13 @@
+name: "Publish to pub.dev"
+# Publish using the reusable workflow from dart-lang.
+
+on:
+  workflow_call:
+
+jobs:
+  publish:
+    permissions:
+      id-token: write # Required for authentication using OIDC
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@8a4b97ea2017cc079571daec46542f76189836b1 # v1.5.1
+    with:
+        environment: "pub.dev"
