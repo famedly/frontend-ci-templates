@@ -91,6 +91,7 @@ This means commit with the following prefixes in the summary line are allowed:
 - refactor
 - style
 - test
+- revert
 
 ## dart/
 
