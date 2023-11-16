@@ -1,0 +1,45 @@
+name: "Run flutter specific github actions"
+
+on:
+  workflow_call:
+    inputs:
+      env_file:
+        description: "Path to an .env file to read flutter_version and/or dart_version from. Please note that these variables will overwrite dart_version and flutter_version."
+        type: string
+        required: false
+      directory:
+        description: "The subdirectory for the dart project, defaults to the current directory."
+        type: string
+        required: false
+        default: "."
+    secrets:
+      ssh_key:
+        description: "SSH key to pull private dependencies"
+        required: false
+
+jobs:
+  flutter_analyzer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Read env file
+        run: cat ${{ inputs.env_file }} >> $GITHUB_ENV
+      - uses: famedly/frontend-ci-templates/.github/actions/flutter-prepare@td/flutterprep
+        with:
+            ssh_key: "${{ secrets.ssh_key }}"
+      - name: Fetch dependencies
+        working-directory: ${{ inputs.directory }}
+        run: |
+          flutter pub get
+      - name: Check formatting
+        working-directory: ${{ inputs.directory }}
+        run: |
+          dart format lib/ test/ test_driver/ --set-exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
+      - name: Run analyzer
+        working-directory: ${{ inputs.directory }}
+        run: |
+          flutter analyze || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
+      - name: Sort imports
+        working-directory: ${{ inputs.directory }}
+        run: |
+          dart run import_sorter:main --no-comments --exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)

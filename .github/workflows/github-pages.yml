@@ -43,5 +43,5 @@ jobs:
             await github.rest.actions.deleteArtifact({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              artifact_id: ${{artifact.id}},
+              artifact_id: ${{ github.env.artifact_id }}, // is this flow even used? deperacate it soon if not
             });

@@ -56,7 +56,7 @@ jobs:
       - name: Fetch dependencies
         working-directory: ${{ inputs.directory }}
         run: |
-          flutter pub get
+          dart pub get
       - name: Check formatting
         working-directory: ${{ inputs.directory }}
         run: |
@@ -64,8 +64,8 @@ jobs:
       - name: Run analyzer
         working-directory: ${{ inputs.directory }}
         run: |
-          flutter analyze || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
+          dart analyze || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
       - name: Sort imports
         working-directory: ${{ inputs.directory }}
         run: |
-          dart pub run import_sorter:main --no-comments --exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
+          dart run import_sorter:main --no-comments --exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
