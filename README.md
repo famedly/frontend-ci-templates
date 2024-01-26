@@ -28,7 +28,7 @@ jobs:
     container:
       image: ghcr.io/famedly/container-image-flutter/flutter:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       # You may need to pull this repo instead using a checkout action
