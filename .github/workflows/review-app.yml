@@ -14,6 +14,10 @@ on:
         type: string
         description: "environment"
         required: false
+      artifact-name:
+        type: string
+        default: web
+        required: false
 
 jobs:
   deploy_review_app:
@@ -26,13 +30,13 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: web
+          name: ${{ inputs.artifact-name }}
           path: public
       - name: Copying app
         shell: bash
         run: |
           eval `ssh-agent -s`
-          echo '${{ secrets.REVIEW_APP_SSH_KEY }}' | ssh-add -
+          echo '${{ secrets.FRONTEND_REVIEW_APP_SSH_KEY }}' | ssh-add -
           mkdir -p ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
           rsync -av --delete public/ "web-review@web-review.famedly.de:/opt/web-review/web/${{inputs.projectname}}-pr-${{ inputs.pr }}"
@@ -48,13 +52,13 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: web
+          name: ${{ inputs.artifact-name }}
           path: public
       - name: Copying app
         shell: bash
         run: |
           eval `ssh-agent -s`
-          echo '${{ secrets.REVIEW_APP_SSH_KEY }}' | ssh-add -
+          echo '${{ secrets.FRONTEND_REVIEW_APP_SSH_KEY }}' | ssh-add -
           mkdir -p ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
           rsync -av --delete public/ "web-review@web-review.famedly.de:/opt/web-review/web/qa-${{inputs.projectname}}"
@@ -66,7 +70,7 @@ jobs:
     steps:
       - run: |
           eval `ssh-agent -s`
-          echo '${{ secrets.REVIEW_APP_SSH_KEY }}' | ssh-add -
+          echo '${{ secrets.FRONTEND_REVIEW_APP_SSH_KEY }}' | ssh-add -
           mkdir -p ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
 
