@@ -6,8 +6,27 @@ on:
 
 jobs:
   publish:
+    environment: "pub.dev"
     permissions:
       id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@8a4b97ea2017cc079571daec46542f76189836b1 # v1.5.1
-    with:
-        environment: "pub.dev"
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repository
+      - uses: actions/checkout@v4
+      # Load the versions.env file if it exists
+      - if: ${{ hashFiles('.github/workflows/versions.env') != '' }}
+        run: cat .github/workflows/versions.env >> $GITHUB_ENV
+      # Setup Dart SDK with JWT token
+      - uses: dart-lang/setup-dart@fedb1266e91cf51be2fdb382869461a434b920a3
+        with:
+          sdk: ${{ env.dart_version || 'stable' }}
+          
+      # Minimal package setup and dry run checks.
+      - name: Install dependencies
+        run: dart pub get
+      - name: Publish - dry run
+        run: dart pub publish --dry-run
+
+      # Publishing...
+      - name: Publish to pub.dev
+        run: dart pub publish -f
