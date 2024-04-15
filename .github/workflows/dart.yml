@@ -44,6 +44,8 @@ jobs:
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa
         with:
           flutter-version: ${{ env.flutter_version }}
+          channel: 'any'
+          cache: true
       - uses: actions/cache@v4
         with:
           path: ~/.pub-cache
