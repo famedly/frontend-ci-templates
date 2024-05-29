@@ -3,16 +3,8 @@ name: "Run dart specific github actions"
 on:
   workflow_call:
     inputs:
-      dart_version:
-        description: "The dart version used for tests."
-        type: string
-        required: false
-      flutter_version:
-        description: "The flutter version used for tests and builds. Be aware that this also installs dart in the version of the corresponding flutter SDK."
-        type: string
-        required: false
       env_file:
-        description: "Path to an .env file to read flutter_version and/or dart_version from. Please note that these variables will overwrite dart_version and flutter_version."
+        description: "Path to an .env file to read flutter_version and/or dart_version from."
         type: string
         required: false
       directory:
@@ -30,15 +22,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       env_file: ${{ inputs.env_file }}
-      flutter_version: ${{ inputs.flutter_version }}
-      dart_version: ${{ inputs.dart_version }}
     steps:
       - uses: actions/checkout@v4
       - name: Read env file
         if: env.env_file != ''
         run: cat ${{ env.env_file }} >> $GITHUB_ENV
       - uses: dart-lang/setup-dart@a57a6c04cf7d4840e88432aad6281d1e125f0d46
-        if: env.dart_version != ''
         with:
           sdk: ${{ env.dart_version }}
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa
