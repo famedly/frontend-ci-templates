@@ -28,6 +28,7 @@ jobs:
         if: env.env_file != ''
         run: cat ${{ env.env_file }} >> $GITHUB_ENV
       - uses: dart-lang/setup-dart@a57a6c04cf7d4840e88432aad6281d1e125f0d46
+        if: env.dart_version != ''
         with:
           sdk: ${{ env.dart_version }}
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa
