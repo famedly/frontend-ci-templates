@@ -53,8 +53,7 @@ jobs:
       contents: read
     uses: famedly/frontend-ci-templates/.github/workflows/dart.yml
     with:
-      flutter_version: 3.10.4
-      dart_version: 3.0.0
+      env_file: ".github/workflows/versions.env"
     secrets:
       ssh_key: "${{ secrets.CI_SSH_PRIVATE_KEY }}"
 
@@ -97,7 +96,7 @@ This means commit with the following prefixes in the summary line are allowed:
 
 These are dart project specific checks.
 
-Make sure you define the flutter_version and dart_version variables, so that it
+Make sure you define the flutter_version and dart_version in an env file and pass it, so that CI
 knows what container to use.
 
 ### dart_analyzer
