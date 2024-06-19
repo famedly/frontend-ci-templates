@@ -91,4 +91,12 @@ jobs:
       - name: Sort imports
         working-directory: ${{ inputs.directory }}
         run: |
-          dart pub run import_sorter:main --no-comments --exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
+          if ! dart run import_sorter:main --no-comments --exit-if-changed
+          then
+            # run again, since exit-if-changed prevents formatting
+            dart run import_sorter:main --no-comments
+            echo '```diff' >> "$GITHUB_STEP_SUMMARY"
+            git diff >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
