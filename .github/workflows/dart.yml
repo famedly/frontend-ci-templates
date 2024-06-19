@@ -54,7 +54,40 @@ jobs:
       - name: Run analyzer
         working-directory: ${{ inputs.directory }}
         run: |
-          flutter analyze || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
+          SCRIPT=$(cat << 'EOL'
+          import json,sys,os
+
+          obj = json.load(sys.stdin)
+
+          diagnostics = obj["diagnostics"]
+
+          if diagnostics:
+              print('|severity|file|problem|suggestion|documentation|')
+              print('|:--|:--|:--|:--|:--|')
+          else:
+              exit(0)
+
+          sha = os.environ["GITHUB_SHA"]
+          server = os.environ["GITHUB_SERVER_URL"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          workspace = os.environ["GITHUB_WORKSPACE"]
+
+          for d in diagnostics:
+              l = d["location"]
+
+              file =l["file"].removeprefix(workspace + "/")
+              start = str(l["range"]["start"]["line"])
+              end = str(l["range"]["end"]["line"])
+
+              location = f'[{file}:{start}]({server}/{repo}/blob/{sha}/{file}#L{start}-L{end})'
+
+              print("", d["severity"], location, d["problemMessage"].replace("|", "\\|"), d["correctionMessage"].replace("|", "\\|"), f'[{d["code"]}]({d["documentation"]})', "", sep="| ")
+          exit(1)
+          EOL
+          )
+
+          dart analyze --format=json | python3 -c "$SCRIPT" | tee -a "$GITHUB_STEP_SUMMARY"
+          test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -eq 0 -a ${PIPESTATUS[2]} -eq 0
       - name: Sort imports
         working-directory: ${{ inputs.directory }}
         run: |
