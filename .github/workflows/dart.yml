@@ -44,6 +44,7 @@ jobs:
           ssh_key: "${{ secrets.ssh_key }}"
           container_mode: "false"
       - name: Fetch dependencies
+        id: deps
         working-directory: ${{ inputs.directory }}
         run: |
           flutter pub get
@@ -53,6 +54,7 @@ jobs:
           dart format lib/ test/ test_driver/ --set-exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
       - name: Run analyzer
         working-directory: ${{ inputs.directory }}
+        if: success() || (failure() && steps.deps.conclusion == 'success')
         run: |
           SCRIPT=$(cat << 'EOL'
           import json,sys,os
@@ -90,6 +92,7 @@ jobs:
           test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -eq 0 -a ${PIPESTATUS[2]} -eq 0
       - name: Sort imports
         working-directory: ${{ inputs.directory }}
+        if: success() || (failure() && steps.deps.conclusion == 'success')
         run: |
           if ! dart run import_sorter:main --no-comments --exit-if-changed
           then
