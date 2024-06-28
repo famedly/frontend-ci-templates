@@ -44,6 +44,7 @@ jobs:
           ssh_key: "${{ secrets.ssh_key }}"
           container_mode: "false"
       - name: Fetch dependencies
+        id: deps
         working-directory: ${{ inputs.directory }}
         run: |
           flutter pub get
@@ -53,9 +54,52 @@ jobs:
           dart format lib/ test/ test_driver/ --set-exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
       - name: Run analyzer
         working-directory: ${{ inputs.directory }}
+        if: success() || (failure() && steps.deps.conclusion == 'success')
         run: |
-          flutter analyze || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
+          SCRIPT=$(cat << 'EOL'
+          import json,sys,os
+
+          obj = json.load(sys.stdin)
+
+          diagnostics = obj["diagnostics"]
+
+          if diagnostics:
+              print('|severity|file|problem|suggestion|documentation|')
+              print('|:--|:--|:--|:--|:--|')
+          else:
+              exit(0)
+
+          sha = os.environ["GITHUB_SHA"]
+          server = os.environ["GITHUB_SERVER_URL"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          workspace = os.environ["GITHUB_WORKSPACE"]
+
+          for d in diagnostics:
+              l = d["location"]
+
+              file =l["file"].removeprefix(workspace + "/")
+              start = str(l["range"]["start"]["line"])
+              end = str(l["range"]["end"]["line"])
+
+              location = f'[{file}:{start}]({server}/{repo}/blob/{sha}/{file}#L{start}-L{end})'
+
+              print("", d["severity"], location, d["problemMessage"].replace("|", "\\|"), d["correctionMessage"].replace("|", "\\|"), f'[{d["code"]}]({d["documentation"]})', "", sep="| ")
+          exit(1)
+          EOL
+          )
+
+          dart analyze --format=json | python3 -c "$SCRIPT" | tee -a "$GITHUB_STEP_SUMMARY"
+          test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -eq 0 -a ${PIPESTATUS[2]} -eq 0
       - name: Sort imports
         working-directory: ${{ inputs.directory }}
+        if: success() || (failure() && steps.deps.conclusion == 'success')
         run: |
-          dart pub run import_sorter:main --no-comments --exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
+          if ! dart run import_sorter:main --no-comments --exit-if-changed
+          then
+            # run again, since exit-if-changed prevents formatting
+            dart run import_sorter:main --no-comments
+            echo '```diff' >> "$GITHUB_STEP_SUMMARY"
+            git diff >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
