@@ -84,7 +84,7 @@ jobs:
 
               location = f'[{file}:{start}]({server}/{repo}/blob/{sha}/{file}#L{start}-L{end})'
 
-              print("", d["severity"], location, d["problemMessage"].replace("|", "\\|"), d["correctionMessage"].replace("|", "\\|"), f'[{d["code"]}]({d["documentation"]})', "", sep="| ")
+              print("", d["severity"], location, d.get("correctionMessage", "").replace("|", "\\|"), d.get("correctionMessage", "").replace("|", "\\|"), f'[{d["code"]}]({d["documentation"]})', "", sep="| ")
           exit(1)
           EOL
           )
