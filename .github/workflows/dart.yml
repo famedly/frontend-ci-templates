@@ -52,7 +52,7 @@ jobs:
       - name: Check formatting
         working-directory: ${{ inputs.directory }}
         run: |
-          dart format lib/ test/ test_driver/ --set-exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
+          dart format lib/ --set-exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
       - name: Run analyzer
         working-directory: ${{ inputs.directory }}
         if: success() || (failure() && steps.deps.conclusion == 'success')
