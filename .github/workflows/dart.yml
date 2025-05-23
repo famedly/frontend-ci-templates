@@ -12,6 +12,11 @@ on:
         type: string
         required: false
         default: ""
+      ignore_formatting:
+        description: "A subdirectory which is ignored in the format check by formatting it before."
+        type: string
+        required: false
+        default: ""
     secrets:
       ssh_key:
         description: "SSH key to pull private dependencies"
@@ -49,6 +54,8 @@ jobs:
         working-directory: ${{ inputs.directory }}
         run: |
           flutter pub get
+      - run: dart format ${{ inputs.ignore_formatting }}
+        if: inputs.ignore_formatting != ''
       - name: Check formatting
         working-directory: ${{ inputs.directory }}
         run: |
