@@ -44,15 +44,15 @@ jobs:
         with:
           ssh_key: "${{ secrets.ssh_key }}"
           container_mode: "false"
-      - name: Check formatting
-        working-directory: ${{ inputs.directory }}
-        run: |
-          dart format lib/ --set-exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
       - name: Fetch dependencies
         id: deps
         working-directory: ${{ inputs.directory }}
         run: |
           flutter pub get
+      - name: Check formatting
+        working-directory: ${{ inputs.directory }}
+        run: |
+          dart format lib/ --set-exit-if-changed || (echo '```diff' >> "$GITHUB_STEP_SUMMARY"; git diff >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"; exit 1)
       - name: Run analyzer
         working-directory: ${{ inputs.directory }}
         if: success() || (failure() && steps.deps.conclusion == 'success')
