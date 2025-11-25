@@ -36,5 +36,6 @@ runs:
         # Fixup the permissions after the checkout action
         # see https://github.com/actions/checkout/issues/766 and https://github.com/actions/checkout/issues/363
         chown -R $(whoami) .
-        flutter --disable-analytics
+        if which flutter > /dev/null; then flutter --disable-analytics; fi
+        if which dart > /dev/null; then dart --disable-analytics; fi
       shell: bash
