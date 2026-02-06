@@ -38,4 +38,6 @@ runs:
         chown -R $(whoami) .
         if which flutter > /dev/null; then flutter --disable-analytics; fi
         if which dart > /dev/null; then dart --disable-analytics; fi
+        # Convert https dependencies in pubspec.yaml to ssh
+        git config --global url."git@github.com:".insteadOf "https://github.com/"
       shell: bash
