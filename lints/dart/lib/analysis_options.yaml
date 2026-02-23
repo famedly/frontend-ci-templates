@@ -27,7 +27,6 @@ linter:
     - unnecessary_to_list_in_spreads
     - use_is_even_rather_than_modulo
     - use_super_parameters
-    - always_put_required_named_parameters_first
 
 analyzer:
   plugins:
@@ -51,7 +50,6 @@ dart_code_linter:
     - prefer-immediate-return
     - prefer-enums-by-name
     - avoid-unnecessary-conditionals
-    - avoid-non-null-assertion
     - prefer-match-file-name
     - member-ordering
     - avoid-late-keyword
