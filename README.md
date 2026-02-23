@@ -107,3 +107,57 @@ Runs the dart analyzer, formatter and pub get.
 
 Allows deploying a review app to our testservers. This is currently just done on
 PRs and they are not cleaned up.
+
+
+# Use unified analysis options:
+
+Import the package as dev dependency:
+
+**For Dart projects:**
+
+```yaml
+dart_code_linter: any
+famedly_dart_lints:
+  git:
+    url: https://github.com/famedly/frontend-ci-templates.git
+    path: lints/dart
+lints: any
+```
+
+Add it to your `analysis_options.yaml`:
+
+```yaml
+include: package:famedly_dart_lints/analysis_options.yaml
+```
+
+**For Flutter projects:**
+
+```yaml
+dart_code_linter: any
+famedly_flutter_lints:
+  git:
+    url: https://github.com/famedly/frontend-ci-templates.git
+    path: lints/flutter
+flutter_lints: any
+```
+
+Add it to your `analysis_options.yaml`:
+
+```yaml
+include: package:famedly_flutter_lints/analysis_options.yaml
+```
+
+**Disable a rule:**
+
+If your project is not yet ready you can **temporarily** disable
+a linter rule like this:
+
+```yaml
+include: package:famedly_flutter_lints/analysis_options.yaml
+
+linter:
+  rules:
+    avoid_print: false # https://link-to-issue
+```
+
+**Please always link an issue to the disabled rule to track the progress!**
