@@ -111,3 +111,31 @@ jobs:
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
+      - name: Check for commented-out Dart code with semicolons
+        run: |
+          if grep -R --include="*.dart" -nE '^[[:space:]]*//[^/<].*;[[:space:]]*$' lib/; then
+            echo ""
+            echo "❌ Found commented-out Dart code ending with semicolon."
+            exit 1
+          fi
+      - name: Check if dart_code_linter is present
+        id: check_linter
+        continue-on-error: true
+        working-directory: ${{ inputs.directory }}
+        run: |
+          if grep -q 'dart_code_linter:' pubspec.yaml; then
+            echo "has_linter=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_linter=false" >> $GITHUB_OUTPUT
+            echo "::warning::dart_code_linter not found in pubspec.yaml, skipping linter checks"
+            exit 1
+          fi
+      - name: Dart Code linter
+        if: steps.check_linter.outputs.has_linter == 'true'
+        run: dart run dart_code_linter:metrics analyze lib --reporter=github
+      - name: Check for unused files
+        if: steps.check_linter.outputs.has_linter == 'true'
+        run: dart run dart_code_linter:metrics check-unused-files --no-analytics lib
+      - name: Check for unused code
+        if: steps.check_linter.outputs.has_linter == 'true'
+        run: dart run dart_code_linter:metrics check-unused-code --no-analytics lib
