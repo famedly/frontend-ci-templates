@@ -141,3 +141,18 @@ jobs:
       - name: Check for unused code
         if: steps.check_linter.outputs.has_linter == 'true'
         run: dart run dart_code_linter:metrics check-unused-code lib
+      - name: Check if translations_cleaner is present
+        id: check_linter
+        continue-on-error: true
+        working-directory: ${{ inputs.directory }}
+        run: |
+          if grep -q 'translations_cleaner:' pubspec.yaml; then
+            echo "has_translations_cleaner=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_translations_cleaner=false" >> $GITHUB_OUTPUT
+            echo "::warning::translations_cleaner not found in pubspec.yaml, skipping linter checks"
+            exit 1
+          fi
+      - name: Check for unused translations
+        if: steps.check_linter.outputs.has_translations_cleaner == 'true'
+        run: flutter pub run translations_cleaner list-unused-terms -a
