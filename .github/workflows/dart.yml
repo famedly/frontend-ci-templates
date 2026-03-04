@@ -55,7 +55,7 @@ jobs:
         run: |
           flutter pub get
       - name: Check if pubspec.lock is up to date
-        run: git diff --exit-code pubspec.lock
+        run: git check-ignore -q pubspec.lock || git diff --exit-code pubspec.lock
       - run: dart format ${{ inputs.ignore_formatting }}
         if: inputs.ignore_formatting != ''
       - name: Check formatting
