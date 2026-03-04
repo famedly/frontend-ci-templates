@@ -142,7 +142,7 @@ jobs:
         if: steps.check_linter.outputs.has_linter == 'true'
         run: dart run dart_code_linter:metrics check-unused-code lib
       - name: Check if translations_cleaner is present
-        id: check_linter
+        id: check_translations_cleaner
         continue-on-error: true
         working-directory: ${{ inputs.directory }}
         run: |
@@ -154,5 +154,5 @@ jobs:
             exit 1
           fi
       - name: Check for unused translations
-        if: steps.check_linter.outputs.has_translations_cleaner == 'true'
+        if: steps.check_translations_cleaner.outputs.has_translations_cleaner == 'true'
         run: flutter pub run translations_cleaner list-unused-terms -a
