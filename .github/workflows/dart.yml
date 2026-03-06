@@ -44,21 +44,6 @@ jobs:
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
-      - name: Check if translations_cleaner is present
-        id: check_translations_cleaner
-        continue-on-error: true
-        working-directory: ${{ inputs.directory }}
-        run: |
-          if grep -q 'translations_cleaner:' pubspec.yaml; then
-            echo "has_translations_cleaner=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_translations_cleaner=false" >> $GITHUB_OUTPUT
-            echo "::warning::translations_cleaner not found in pubspec.yaml, skipping linter checks"
-            exit 1
-          fi
-      - name: Check for unused translations
-        if: steps.check_translations_cleaner.outputs.has_translations_cleaner == 'true'
-        run: flutter pub run translations_cleaner list-unused-terms -a
       - name: Enable pulling private dependencies
         uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@main
         with:
@@ -156,3 +141,20 @@ jobs:
       - name: Check for unused code
         if: steps.check_linter.outputs.has_linter == 'true'
         run: dart run dart_code_linter:metrics check-unused-code lib
+      - name: Check if translations_cleaner is present
+        id: check_translations_cleaner
+        continue-on-error: true
+        working-directory: ${{ inputs.directory }}
+        run: |
+          if grep -q 'translations_cleaner:' pubspec.yaml; then
+            echo "has_translations_cleaner=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_translations_cleaner=false" >> $GITHUB_OUTPUT
+            echo "::warning::translations_cleaner not found in pubspec.yaml, skipping linter checks"
+            exit 1
+          fi
+      - name: Check for unused translations
+        if: steps.check_translations_cleaner.outputs.has_translations_cleaner == 'true'
+        run: |
+          rm -f lib/l10n/l10n*.dart # Delete dart files to find all unused terms
+          flutter pub run translations_cleaner list-unused-terms -a
