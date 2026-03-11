@@ -140,7 +140,7 @@ jobs:
         run: dart run dart_code_linter:metrics check-unused-files lib
       - name: Check for unused code
         if: steps.check_linter.outputs.has_linter == 'true'
-        run: dart run dart_code_linter:metrics check-unused-code lib
+        run: dart run dart_code_linter:metrics check-unused-code lib --exclude="{**/generated/**.dart,**.g.dart,**.freezed.dart}"
       - name: Check if translations_cleaner is present
         id: check_translations_cleaner
         continue-on-error: true
