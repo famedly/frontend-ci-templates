@@ -120,6 +120,10 @@ jobs:
             echo "❌ Found commented-out Dart code ending with semicolon."
             exit 1
           fi
+      - name: Search unused dependencies
+        run: |
+          dart pub global activate dependency_validator
+          dart pub global run dependency_validator
       - name: Check if dart_code_linter is present
         id: check_linter
         continue-on-error: true
