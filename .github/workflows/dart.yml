@@ -163,7 +163,6 @@ jobs:
             echo "::warning::translations_cleaner not found in pubspec.yaml, skipping linter checks"
             exit 1
           fi
-        working-directory: ${{ inputs.directory }}
       - name: Check for unused translations
         if: steps.check_translations_cleaner.outputs.has_translations_cleaner == 'true'
         run: |
