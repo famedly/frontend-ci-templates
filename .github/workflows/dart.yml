@@ -56,6 +56,7 @@ jobs:
           flutter pub get
       - name: Check if pubspec.lock is up to date
         run: git check-ignore -q pubspec.lock || git diff --exit-code pubspec.lock
+        working-directory: ${{ inputs.directory }}
       - run: dart format ${{ inputs.ignore_formatting }}
         if: inputs.ignore_formatting != ''
       - name: Check formatting
@@ -120,10 +121,12 @@ jobs:
             echo "❌ Found commented-out Dart code ending with semicolon."
             exit 1
           fi
+        working-directory: ${{ inputs.directory }}
       - name: Search unused dependencies
         run: |
           dart pub global activate dependency_validator
           dart pub global run dependency_validator
+        working-directory: ${{ inputs.directory }}
       - name: Check if dart_code_linter is present
         id: check_linter
         continue-on-error: true
@@ -139,12 +142,15 @@ jobs:
       - name: Dart Code linter
         if: steps.check_linter.outputs.has_linter == 'true'
         run: dart run dart_code_linter:metrics analyze lib --reporter=github
+        working-directory: ${{ inputs.directory }}
       - name: Check for unused files
         if: steps.check_linter.outputs.has_linter == 'true'
         run: dart run dart_code_linter:metrics check-unused-files lib
+        working-directory: ${{ inputs.directory }}
       - name: Check for unused code
         if: steps.check_linter.outputs.has_linter == 'true'
         run: dart run dart_code_linter:metrics check-unused-code lib --exclude="{**/generated/**.dart,**.g.dart,**.freezed.dart}"
+        working-directory: ${{ inputs.directory }}
       - name: Check if translations_cleaner is present
         id: check_translations_cleaner
         continue-on-error: true
@@ -157,8 +163,10 @@ jobs:
             echo "::warning::translations_cleaner not found in pubspec.yaml, skipping linter checks"
             exit 1
           fi
+        working-directory: ${{ inputs.directory }}
       - name: Check for unused translations
         if: steps.check_translations_cleaner.outputs.has_translations_cleaner == 'true'
         run: |
           rm -f lib/l10n/l10n*.dart # Delete dart files to find all unused terms
           flutter pub run translations_cleaner list-unused-terms -a
+        working-directory: ${{ inputs.directory }}
