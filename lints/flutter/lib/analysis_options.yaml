@@ -27,6 +27,7 @@ linter:
     - unnecessary_to_list_in_spreads
     - use_is_even_rather_than_modulo
     - use_super_parameters
+    - directives_ordering
     # Flutter specific:
     - use_colored_box
 

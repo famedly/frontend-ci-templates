@@ -101,19 +101,6 @@ jobs:
 
           dart analyze --format=json | python3 -c "$SCRIPT" | tee -a "$GITHUB_STEP_SUMMARY"
           test ${PIPESTATUS[0]} -eq 0 -a ${PIPESTATUS[1]} -eq 0 -a ${PIPESTATUS[2]} -eq 0
-      - name: Sort imports
-        working-directory: ${{ inputs.directory }}
-        if: success() || (failure() && steps.deps.conclusion == 'success')
-        run: |
-          if ! dart run import_sorter:main --no-comments --exit-if-changed
-          then
-            # run again, since exit-if-changed prevents formatting
-            dart run import_sorter:main --no-comments
-            echo '```diff' >> "$GITHUB_STEP_SUMMARY"
-            git diff >> "$GITHUB_STEP_SUMMARY"
-            echo '```' >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
       - name: Check for commented-out Dart code with semicolons
         run: |
           if grep -R --include="*.dart" -nE '^[[:space:]]*//[^/<].*;[[:space:]]*$' lib/; then
