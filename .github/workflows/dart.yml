@@ -51,7 +51,7 @@ jobs:
         uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@main
         with:
           ssh_key: "${{ secrets.ssh_key }}"
-          famedly_github_token: "${{ secrets.github_token }}"
+          famedly_github_token: "${{ secrets.famedly_github_token }}"
           container_mode: "false"
       - name: Fetch dependencies
         id: deps
