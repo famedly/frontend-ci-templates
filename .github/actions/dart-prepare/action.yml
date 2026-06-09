@@ -5,7 +5,7 @@ inputs:
   ssh_key:
     description: "SSH key to pull private dependencies."
     required: false
-  github_token:
+  famedly_github_token:
     description: "GitHub token to pull private dependencies over HTTPS."
     required: false
   container_mode:
@@ -17,7 +17,7 @@ runs:
   using: composite
   steps:
     - name: Enable pulling private dependencies with SSH
-      if: ${{ inputs.ssh_key != '' && inputs.github_token == '' }}
+      if: ${{ inputs.ssh_key != '' && inputs.famedly_github_token == '' }}
       run: |
         if [[ "${{ inputs.container_mode }}" == "true" ]]; then
           mkdir -p -m 0700 ~/.ssh/ && touch ~/.ssh/known_hosts
@@ -46,14 +46,14 @@ runs:
       shell: bash
 
     - name: Enable pulling private dependencies with GitHub token
-      if: ${{ inputs.github_token != '' }}
+      if: ${{ inputs.famedly_github_token != '' }}
       run: |
         # Fixup the permissions after the checkout action
         # see https://github.com/actions/checkout/issues/766 and https://github.com/actions/checkout/issues/363
         chown -R $(whoami) .
         if which flutter > /dev/null; then flutter --disable-analytics; fi
         if which dart > /dev/null; then dart --disable-analytics; fi
-        git config --global url."https://x-access-token:${{ inputs.github_token }}@github.com/".insteadOf "https://github.com/"
-        git config --global url."https://x-access-token:${{ inputs.github_token }}@github.com/".insteadOf "git@github.com:"
-        git config --global url."https://x-access-token:${{ inputs.github_token }}@github.com/".insteadOf "ssh://git@github.com/"
+        git config --global url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "https://github.com/"
+        git config --global url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "git@github.com:"
+        git config --global url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "ssh://git@github.com/"
       shell: bash

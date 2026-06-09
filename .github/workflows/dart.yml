@@ -21,7 +21,7 @@ on:
       ssh_key:
         description: "SSH key to pull private dependencies"
         required: false
-      github_token:
+      famedly_github_token:
         description: "GitHub token to pull private dependencies over HTTPS"
         required: false
 
@@ -51,7 +51,7 @@ jobs:
         uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@main
         with:
           ssh_key: "${{ secrets.ssh_key }}"
-          github_token: "${{ secrets.github_token }}"
+          famedly_github_token: "${{ secrets.github_token }}"
           container_mode: "false"
       - name: Fetch dependencies
         id: deps
