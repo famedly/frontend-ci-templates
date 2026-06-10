@@ -64,4 +64,14 @@ runs:
         # Rewrite ssh-style dependency URLs to HTTPS so the netrc auth applies.
         git config --global --add url."https://github.com/famedly/".insteadOf "git@github.com:famedly/"
         git config --global --add url."https://github.com/famedly/".insteadOf "ssh://git@github.com/famedly/"
+        # On macOS, force Xcode's Swift Package Manager to resolve packages
+        # with the system git (which honors gitconfig and ~/.netrc) instead of
+        # Xcode's own SCM, which consults the keychain and hangs headless CI
+        # runners. Equivalent of `xcodebuild -scmProvider system`, needed
+        # because tools like `flutter build ipa` invoke xcodebuild internally
+        # and cannot forward the flag, see
+        # https://github.com/actions/runner-images/issues/10722
+        if [[ "$(uname)" == "Darwin" ]]; then
+          defaults write com.apple.dt.Xcode IDEPackageSupportUseBuiltinSCM -bool YES
+        fi
       shell: bash
