@@ -55,7 +55,10 @@ runs:
         if which dart > /dev/null; then dart --disable-analytics; fi
         # --add is required: plain `git config` overwrites the previous value
         # for the same url base key, leaving only the last insteadOf rewrite.
-        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "https://github.com/"
-        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "git@github.com:"
-        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "ssh://git@github.com/"
+        # The rewrites are scoped to the famedly org on purpose: rewriting all
+        # of github.com injects the token into public clones too, which makes
+        # Xcode's Swift Package Manager hang during dependency resolution.
+        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/famedly/".insteadOf "https://github.com/famedly/"
+        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/famedly/".insteadOf "git@github.com:famedly/"
+        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/famedly/".insteadOf "ssh://git@github.com/famedly/"
       shell: bash
