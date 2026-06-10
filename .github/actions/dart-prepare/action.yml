@@ -53,12 +53,25 @@ runs:
         chown -R $(whoami) .
         if which flutter > /dev/null; then flutter --disable-analytics; fi
         if which dart > /dev/null; then dart --disable-analytics; fi
-        # --add is required: plain `git config` overwrites the previous value
-        # for the same url base key, leaving only the last insteadOf rewrite.
-        # The rewrites are scoped to the famedly org on purpose: rewriting all
-        # of github.com injects the token into public clones too, which makes
-        # Xcode's Swift Package Manager hang during dependency resolution.
-        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/famedly/".insteadOf "https://github.com/famedly/"
-        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/famedly/".insteadOf "git@github.com:famedly/"
-        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/famedly/".insteadOf "ssh://git@github.com/famedly/"
+        # Authenticate via ~/.netrc instead of embedding the token in git URLs:
+        # git picks it up for HTTPS clones, and Xcode's Swift Package Manager
+        # uses it instead of the macOS keychain. The keychain has no UI on CI
+        # runners, which makes SPM dependency resolution hang forever, see
+        # https://github.com/actions/runner-images/issues/6233
+        printf 'machine github.com\nlogin x-access-token\npassword %s\n\nmachine api.github.com\nlogin x-access-token\npassword %s\n' \
+          "${{ inputs.famedly_github_token }}" "${{ inputs.famedly_github_token }}" > ~/.netrc
+        chmod 600 ~/.netrc
+        # Rewrite ssh-style dependency URLs to HTTPS so the netrc auth applies.
+        git config --global --add url."https://github.com/famedly/".insteadOf "git@github.com:famedly/"
+        git config --global --add url."https://github.com/famedly/".insteadOf "ssh://git@github.com/famedly/"
+        # On macOS, force Xcode's Swift Package Manager to resolve packages
+        # with the system git (which honors gitconfig and ~/.netrc) instead of
+        # Xcode's own SCM, which consults the keychain and hangs headless CI
+        # runners. Equivalent of `xcodebuild -scmProvider system`, needed
+        # because tools like `flutter build ipa` invoke xcodebuild internally
+        # and cannot forward the flag, see
+        # https://github.com/actions/runner-images/issues/10722
+        if [[ "$(uname)" == "Darwin" ]]; then
+          defaults write com.apple.dt.Xcode IDEPackageSupportUseBuiltinSCM -bool YES
+        fi
       shell: bash
