@@ -53,7 +53,9 @@ runs:
         chown -R $(whoami) .
         if which flutter > /dev/null; then flutter --disable-analytics; fi
         if which dart > /dev/null; then dart --disable-analytics; fi
-        git config --global url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "https://github.com/"
-        git config --global url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "git@github.com:"
-        git config --global url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "ssh://git@github.com/"
+        # --add is required: plain `git config` overwrites the previous value
+        # for the same url base key, leaving only the last insteadOf rewrite.
+        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "https://github.com/"
+        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "git@github.com:"
+        git config --global --add url."https://x-access-token:${{ inputs.famedly_github_token }}@github.com/".insteadOf "ssh://git@github.com/"
       shell: bash
