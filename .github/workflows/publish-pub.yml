@@ -28,7 +28,7 @@ jobs:
           
       # Minimal package setup and dry run checks.
       - name: Install dependencies
-        run: dart pub get
+        run: dart pub get --no-example
       - name: Publish - dry run
         run: dart pub publish --dry-run
 
