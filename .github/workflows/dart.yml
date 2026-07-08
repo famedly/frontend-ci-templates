@@ -144,6 +144,10 @@ jobs:
         working-directory: ${{ inputs.directory }}
       - name: Check for unused translations
         run: |
+          if [ ! -f l10n.yaml ]; then
+            echo "::notice::No l10n.yaml found at project root, skipping sweeper check"
+            exit 0
+          fi
           dart pub global activate sweeper
           dart pub global run sweeper check
         working-directory: ${{ inputs.directory }}
