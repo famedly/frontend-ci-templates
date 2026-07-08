@@ -48,7 +48,7 @@ jobs:
           path: ~/.pub-cache
           key: ${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
       - name: Enable pulling private dependencies
-        uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@main
+        uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@e8167567258899ed2a5bcc7fe04c79ad78f87967
         with:
           ssh_key: "${{ secrets.ssh_key }}"
           famedly_github_token: "${{ secrets.famedly_github_token }}"

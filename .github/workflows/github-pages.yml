@@ -17,7 +17,7 @@ jobs:
       - name: Clean repository
         run: rm -rf ./*
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317
         with:
           name: ${{inputs.artifact_name}}
       - name: Publish to GitHub Pages
@@ -30,7 +30,7 @@ jobs:
           git commit -m "Publish to GitHub Pages"
           git push --force origin gh-pages
       - name: Delete Artifact
-        uses: actions/github-script@v5
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
