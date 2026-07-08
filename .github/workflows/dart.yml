@@ -142,21 +142,8 @@ jobs:
         if: steps.check_linter.outputs.has_linter == 'true'
         run: dart run dart_code_linter:metrics check-unused-code lib --exclude="{**/generated/**.dart,**.g.dart,**.freezed.dart}"
         working-directory: ${{ inputs.directory }}
-      - name: Check if translations_cleaner is present
-        id: check_translations_cleaner
-        continue-on-error: true
-        working-directory: ${{ inputs.directory }}
-        run: |
-          if grep -q 'translations_cleaner:' pubspec.yaml; then
-            echo "has_translations_cleaner=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_translations_cleaner=false" >> $GITHUB_OUTPUT
-            echo "::warning::translations_cleaner not found in pubspec.yaml, skipping linter checks"
-            exit 1
-          fi
       - name: Check for unused translations
-        if: steps.check_translations_cleaner.outputs.has_translations_cleaner == 'true'
         run: |
-          rm -f lib/l10n/l10n*.dart # Delete dart files to find all unused terms
-          flutter pub run translations_cleaner list-unused-terms -a
+          dart pub global activate sweeper
+          dart pub global run sweeper check
         working-directory: ${{ inputs.directory }}
