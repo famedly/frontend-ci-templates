@@ -140,7 +140,7 @@ jobs:
         working-directory: ${{ inputs.directory }}
       - name: Check for unused code
         if: steps.check_linter.outputs.has_linter == 'true'
-        run: dart run dart_code_linter:metrics check-unused-code lib --exclude="{**/generated/**.dart,**.g.dart,**.freezed.dart}"
+        run: dart run dart_code_linter:metrics check-unused-code lib --exclude="{**/generated/**.dart,**.g.dart,**.freezed.dart,**/l10n/**}"
         working-directory: ${{ inputs.directory }}
       - name: Check for unused translations
         run: |
