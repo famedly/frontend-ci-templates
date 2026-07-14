@@ -142,12 +142,19 @@ jobs:
         if: steps.check_linter.outputs.has_linter == 'true'
         run: dart run dart_code_linter:metrics check-unused-code lib --exclude="{**/generated/**.dart,**.g.dart,**.freezed.dart,**/l10n/**}"
         working-directory: ${{ inputs.directory }}
-      - name: Check for unused translations
+      - name: Check for unused translations and arb sorting
         run: |
           if [ ! -f l10n.yaml ]; then
             echo "::notice::No l10n.yaml found at project root, skipping sweeper check"
             exit 0
           fi
           dart pub global activate sweeper
-          dart pub global run sweeper check
+          result=0
+          dart pub global run sweeper check || result=1
+          dart pub global run sweeper sort
+          if ! git diff --exit-code -- '*.arb'; then
+            echo "❌ arb files are not sorted. Run 'sweeper sort' and commit the changes." >> "$GITHUB_STEP_SUMMARY"
+            result=1
+          fi
+          exit $result
         working-directory: ${{ inputs.directory }}
