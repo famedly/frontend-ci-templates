@@ -71,7 +71,7 @@ jobs:
         working-directory: ${{ inputs.directory }}
         if: success() || (failure() && steps.deps.conclusion == 'success')
         run: |
-          dart analyze
+          flutter analyze
       - name: Check for commented-out Dart code with semicolons
         run: |
           if grep -R --include="*.dart" -nE '^[[:space:]]*//[^/<].*;[[:space:]]*$' lib/; then
