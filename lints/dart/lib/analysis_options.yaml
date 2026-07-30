@@ -28,6 +28,7 @@ linter:
     - use_is_even_rather_than_modulo
     - use_super_parameters
     - directives_ordering
+    - prefer_relative_imports
 
 analyzer:
   plugins:
