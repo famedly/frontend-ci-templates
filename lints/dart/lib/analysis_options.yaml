@@ -30,9 +30,31 @@ linter:
     - directives_ordering
     - prefer_relative_imports
 
+plugins:
+  dart_code_linter:
+    version: ^4.3.0
+    # The analyzer only runs plugin lint rules listed here, so every rule
+    # configured under `dart_code_linter.rules` needs an entry. That section
+    # still supplies each rule's severity and parameters, and is what the
+    # `metrics` CLI reads.
+    diagnostics:
+      avoid-dynamic: true
+      avoid-redundant-async: true
+      avoid-unnecessary-type-assertions: true
+      avoid-unnecessary-type-casts: true
+      avoid-unrelated-type-assertions: true
+      no-equal-then-else: true
+      prefer-first: true
+      prefer-last: true
+      prefer-immediate-return: true
+      prefer-enums-by-name: true
+      avoid-unnecessary-conditionals: true
+      prefer-match-file-name: true
+      member-ordering: true
+      avoid-late-keyword: true
+      avoid-global-state: true
+
 analyzer:
-  plugins:
-    - dart_code_linter
   errors:
     todo: ignore
     use_build_context_synchronously: ignore
