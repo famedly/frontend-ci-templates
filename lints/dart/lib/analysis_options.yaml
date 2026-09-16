@@ -30,9 +30,10 @@ linter:
     - directives_ordering
     - prefer_relative_imports
 
+plugins:
+  dart_code_linter: ^4.3.0
+
 analyzer:
-  plugins:
-    - dart_code_linter
   errors:
     todo: ignore
     use_build_context_synchronously: ignore
