@@ -39,7 +39,7 @@ jobs:
         if: env.dart_version != ''
         with:
           sdk: ${{ env.dart_version }}
-      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.flutter_version }}
           cache: true
