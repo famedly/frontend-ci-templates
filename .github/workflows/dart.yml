@@ -7,6 +7,10 @@ on:
         description: "Path to an .env file to read flutter_version and/or dart_version from."
         type: string
         required: false
+      flutter_version_file:
+        description: "Path to a pubspec.yaml or .fvmrc to read the Flutter version from, e.g. `.fvmrc`. Don't combine with flutter_version in env_file."
+        type: string
+        required: false
       directory:
         description: "The subdirectory for the dart project, defaults to the current directory."
         type: string
@@ -42,6 +46,7 @@ jobs:
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.flutter_version }}
+          flutter-version-file: ${{ inputs.flutter_version_file }}
           cache: true
       - name: Enable pulling private dependencies
         uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@d37619c266dc70c39c94e61d45cbb64e2c43ef7e
