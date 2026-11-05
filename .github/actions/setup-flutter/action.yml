@@ -1,5 +1,5 @@
 name: "Setup Flutter"
-description: "Flutter SDK with a pub cache that falls back to any cache of the same Flutter version"
+description: "Flutter SDK with a pub cache keyed exactly by pubspec.lock"
 
 inputs:
   flutter-version:
@@ -30,10 +30,8 @@ runs:
       with:
         path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
         key: flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ steps.flutter.outputs.VERSION }}-${{ hashFiles('**/pubspec.lock') }}
-        restore-keys: flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ steps.flutter.outputs.VERSION }}-
     - if: inputs.save-pub-cache == 'true'
       uses: actions/cache@v5
       with:
         path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
         key: flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ steps.flutter.outputs.VERSION }}-${{ hashFiles('**/pubspec.lock') }}
-        restore-keys: flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ steps.flutter.outputs.VERSION }}-

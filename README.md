@@ -105,9 +105,10 @@ Runs the dart analyzer, formatter and pub get.
 
 ## actions/setup-flutter
 
-Installs Flutter via subosito/flutter-action with the SDK cached. The pub cache key
-falls back to any cache of the same Flutter version, and only the default branch
-saves it, since caches of other refs can't be shared.
+Installs Flutter via subosito/flutter-action with the SDK cached. The pub cache is
+restored only on an exact `pubspec.lock` match, and only the default branch saves
+it, since caches of other refs can't be shared. A miss elsewhere runs a temporary
+`pub get` that is not cached.
 
 ```yaml
 - uses: famedly/frontend-ci-templates/.github/actions/setup-flutter@v1.3.0
