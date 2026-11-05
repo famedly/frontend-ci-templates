@@ -43,12 +43,12 @@ jobs:
         if: env.dart_version != ''
         with:
           sdk: ${{ env.dart_version }}
-      - uses: famedly/frontend-ci-templates/.github/actions/setup-flutter@v1.3.0
+      - uses: famedly/frontend-ci-templates/.github/actions/setup-flutter@v1.3.1
         with:
           flutter-version: ${{ env.flutter_version }}
           flutter-version-file: ${{ inputs.flutter_version_file }}
       - name: Enable pulling private dependencies
-        uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@v1.3.0
+        uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@v1.3.1
         with:
           ssh_key: "${{ secrets.ssh_key }}"
           famedly_github_token: "${{ secrets.famedly_github_token }}"

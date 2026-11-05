@@ -111,7 +111,7 @@ it, since caches of other refs can't be shared. A miss elsewhere runs a temporar
 `pub get` that is not cached.
 
 ```yaml
-- uses: famedly/frontend-ci-templates/.github/actions/setup-flutter@v1.3.0
+- uses: famedly/frontend-ci-templates/.github/actions/setup-flutter@v1.3.1
   with:
     flutter-version: ${{ env.flutter_version }}
 ```
@@ -120,7 +120,6 @@ it, since caches of other refs can't be shared. A miss elsewhere runs a temporar
 
 Allows deploying a review app to our testservers. This is currently just done on
 PRs and they are not cleaned up.
-
 
 # Use unified analysis options:
 
