@@ -43,13 +43,12 @@ jobs:
         if: env.dart_version != ''
         with:
           sdk: ${{ env.dart_version }}
-      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+      - uses: famedly/frontend-ci-templates/.github/actions/setup-flutter@v1.3.0
         with:
           flutter-version: ${{ env.flutter_version }}
           flutter-version-file: ${{ inputs.flutter_version_file }}
-          cache: true
       - name: Enable pulling private dependencies
-        uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@d37619c266dc70c39c94e61d45cbb64e2c43ef7e
+        uses: famedly/frontend-ci-templates/.github/actions/dart-prepare@v1.3.0
         with:
           ssh_key: "${{ secrets.ssh_key }}"
           famedly_github_token: "${{ secrets.famedly_github_token }}"
