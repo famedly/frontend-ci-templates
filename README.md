@@ -103,6 +103,18 @@ knows what container to use.
 
 Runs the dart analyzer, formatter and pub get.
 
+## actions/setup-flutter
+
+Installs Flutter via subosito/flutter-action with the SDK cached. The pub cache key
+falls back to any cache of the same Flutter version, and only the default branch
+saves it, since caches of other refs can't be shared.
+
+```yaml
+- uses: famedly/frontend-ci-templates/.github/actions/setup-flutter@v1.3.0
+  with:
+    flutter-version: ${{ env.flutter_version }}
+```
+
 ## review_app
 
 Allows deploying a review app to our testservers. This is currently just done on

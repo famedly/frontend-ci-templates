@@ -1,0 +1,39 @@
+name: "Setup Flutter"
+description: "Flutter SDK with a pub cache that falls back to any cache of the same Flutter version"
+
+inputs:
+  flutter-version:
+    description: "Flutter version to install."
+    required: false
+    default: ""
+  flutter-version-file:
+    description: "pubspec.yaml or FVM config defining the Flutter version."
+    required: false
+    default: ""
+  save-pub-cache:
+    description: "Save the pub cache. Caches saved on other refs can't be shared, so only the default branch saves by default."
+    required: false
+    default: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+
+runs:
+  using: composite
+  steps:
+    - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+      id: flutter
+      with:
+        flutter-version: ${{ inputs.flutter-version }}
+        flutter-version-file: ${{ inputs.flutter-version-file }}
+        cache: true
+        pub-cache: false
+    - if: inputs.save-pub-cache != 'true'
+      uses: actions/cache/restore@v5
+      with:
+        path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+        key: flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ steps.flutter.outputs.VERSION }}-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ steps.flutter.outputs.VERSION }}-
+    - if: inputs.save-pub-cache == 'true'
+      uses: actions/cache@v5
+      with:
+        path: ${{ steps.flutter.outputs.PUB-CACHE-PATH }}
+        key: flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ steps.flutter.outputs.VERSION }}-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: flutter-pub-${{ runner.os }}-${{ runner.arch }}-${{ steps.flutter.outputs.VERSION }}-
